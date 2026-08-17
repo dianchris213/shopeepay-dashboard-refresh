@@ -187,6 +187,28 @@
   }
 }
 
+/* Slim horizontal scrollbar for swipeable strips (visible on desktop web). */
+@utility scroll-slim-x {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(1 0 0 / 20%) transparent;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: oklch(1 0 0 / 20%);
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+
+
 
 @utility glass {
   background: linear-gradient(
