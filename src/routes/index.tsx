@@ -4,16 +4,13 @@ import {
   AlertTriangle,
   ArrowDownLeft,
   ArrowUpRight,
-  Banknote,
   Bell,
   Check,
   ChevronRight,
-  Landmark,
   Plus,
   Repeat,
   Share2,
   Shield,
-  Wallet,
 } from "lucide-react";
 
 import { WidgetErrorBoundary } from "@/components/WidgetErrorBoundary";
@@ -46,7 +43,7 @@ import {
 } from "@/lib/streams";
 import { WAExportPreviewSheet } from "@/components/WAExportPreviewSheet";
 import { ShopeeInclusionBadge } from "@/components/ShopeeInclusionBadge";
-import { useT, type TranslationKey } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -70,12 +67,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const groupMeta = [
-  { labelKey: "home.totalWallet" as TranslationKey, type: "E-Wallet" as const, Icon: Wallet },
-  { labelKey: "home.cash" as TranslationKey, type: "Cash" as const, Icon: Banknote },
-  { labelKey: "home.bank" as TranslationKey, type: "Bank Account" as const, Icon: Landmark },
-];
-
 function Index() {
   const state = useFinance();
   const money = useMoney();
@@ -87,7 +78,6 @@ function Index() {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [stream, setStream] = useState<StreamKey | null>(null);
   const [shopeeOpen, setShopeeOpen] = useState(false);
-  const [pane, setPane] = useState<"overview" | "wallets" | "streams">("overview");
 
   const { balance } = useMemo(() => totals(state), [state]);
   // Home boxes show today's activity only, excluding the specialised streams.
