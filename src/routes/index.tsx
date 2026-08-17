@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -11,11 +11,9 @@ import {
   Repeat,
   Share2,
   Shield,
-  Wallet,
 } from "lucide-react";
 
 import { useDragScroll } from "@/hooks/use-drag-scroll";
-
 
 import { WidgetErrorBoundary } from "@/components/WidgetErrorBoundary";
 import { BottomNav } from "@/components/BottomNav";
@@ -38,7 +36,7 @@ import {
   useSafeToSpend,
 } from "@/lib/finance-store";
 import {
-  customBalance,
+  customAccounts,
   customLabel,
   dailyTotals,
   driverBalance,
@@ -84,14 +82,66 @@ function Index() {
   const [shopeeOpen, setShopeeOpen] = useState(false);
   const strip = useDragScroll<HTMLDivElement>();
 
-
   const { balance } = useMemo(() => totals(state), [state]);
   // Home boxes show today's activity only, excluding the specialised streams.
   const { income, expense } = useMemo(() => dailyTotals(state), [state]);
   const driverTotal = useMemo(() => driverBalance(state), [state]);
-  const customTotal = useMemo(() => customBalance(state), [state]);
   const customName = useMemo(() => customLabel(state), [state]);
   const shopeeTotal = useMemo(() => shopeePayBalance(state), [state]);
+
+  // Derived, strictly-sorted wallet cards: Driver (1), ShopeePay (2), custom wallets (3+).
+  type WalletCard = {
+    id: string;
+    priority: number;
+    label: string;
+    amount: number;
+    testId: string;
+    onClick: () => void;
+  };
+  const walletCards = useMemo(() => {
+    const cards: WalletCard[] = [
+      {
+        id: "driver",
+        priority: 1,
+        label: `${t("home.driver")} · ${t("home.today")}`,
+        amount: driverTotal,
+        testId: "stream-card-driver",
+        onClick: () => setStream("driver"),
+      },
+      {
+        id: "shopee",
+        priority: 2,
+        label: t("home.shopee"),
+        amount: shopeeTotal,
+        testId: "stream-card-shopee",
+        onClick: () => setShopeeOpen(true),
+      },
+    ];
+    const customList = customAccounts(state);
+    if (customList.length === 0) {
+      // Preserve the fallback placeholder shown when no custom wallet exists yet.
+      cards.push({
+        id: "custom-fallback",
+        priority: 3,
+        label: customName,
+        amount: 0,
+        testId: "stream-card-custom",
+        onClick: () => setStream("custom"),
+      });
+    } else {
+      for (const account of customList) {
+        cards.push({
+          id: account.id,
+          priority: 3,
+          label: account.name,
+          amount: account.amount,
+          testId: `stream-card-custom-${account.id}`,
+          onClick: () => setStream("custom"),
+        });
+      }
+    }
+    return cards.sort((a, b) => a.priority - b.priority);
+  }, [driverTotal, shopeeTotal, state, customName, t, setStream, setShopeeOpen]);
   const unread = state.notifications.filter((n) => !n.read).length;
   const availableBills = state.accounts.find((a) => a.type === "Cash")?.amount ?? 0;
   // Priority order = the order set in Settings > Manage Bills & Installments.
@@ -221,79 +271,31 @@ function Index() {
               data-testid="stream-strip"
               className="scroll-slim-x -mx-1 mt-2 flex w-full cursor-grab snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1.5 active:cursor-grabbing"
             >
-              <button
-                onClick={() => {
-                  if (strip.didDrag()) return;
-                  setStream("driver");
-                }}
-                data-testid="stream-card-driver"
-                aria-label={`${t("home.driver")}: ${money(driverTotal)}`}
-                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                  {t("home.driver")} · {t("home.today")}
-                </p>
-                <p
-                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
-                    driverTotal < 0 ? "text-expense" : "text-income"
-                  }`}
+              {walletCards.map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => {
+                    if (strip.didDrag()) return;
+                    card.onClick();
+                  }}
+                  data-testid={card.testId}
+                  aria-label={`${card.label}: ${money(card.amount)}`}
+                  className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
                 >
-                  {money(driverTotal)}
-                </p>
-              </button>
-              <button
-                onClick={() => {
-                  if (strip.didDrag()) return;
-                  setStream("custom");
-                }}
-                data-testid="stream-card-custom"
-                aria-label={`${customName}: ${money(customTotal)}`}
-                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                  {customName}
-                </p>
-                <p
-                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
-                    customTotal < 0 ? "text-expense" : "text-income"
-                  }`}
-                >
-                  {money(customTotal)}
-                </p>
-              </button>
-              {/* Persistent driver wallet — never resets at midnight. */}
-              <button
-                onClick={() => {
-                  if (strip.didDrag()) return;
-                  setShopeeOpen(true);
-                }}
-                data-testid="stream-card-shopee"
-                aria-label={`${t("home.shopee")}: ${money(shopeeTotal)}`}
-                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                  {t("home.shopee")}
-                </p>
-                <p
-                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
-                    shopeeTotal < 0 ? "text-expense" : "text-income"
-                  }`}
-                >
-                  {money(shopeeTotal)}
-                </p>
-              </button>
-              <Link
-                to="/wallets"
-                aria-label={t("nav.wallets")}
-                className="glass tap hover:bg-foreground/10 flex min-w-[112px] shrink-0 snap-start items-center justify-center gap-1.5 rounded-2xl px-3 py-2 text-[11px] font-medium transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <Wallet className="size-4" strokeWidth={1.8} />
-                {t("nav.wallets")}
-              </Link>
+                  <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
+                    {card.label}
+                  </p>
+                  <p
+                    className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
+                      card.amount < 0 ? "text-expense" : "text-income"
+                    }`}
+                  >
+                    {money(card.amount)}
+                  </p>
+                </button>
+              ))}
             </div>
-
           </section>
-
         </WidgetErrorBoundary>
 
         <WidgetErrorBoundary name="home-bills">
