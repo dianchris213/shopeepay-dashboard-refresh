@@ -117,18 +117,31 @@ function Index() {
         onClick: () => setShopeeOpen(true),
       },
     ];
-    for (const account of customAccounts(state)) {
+    const customList = customAccounts(state);
+    if (customList.length === 0) {
+      // Preserve the fallback placeholder shown when no custom wallet exists yet.
       cards.push({
-        id: account.id,
+        id: "custom-fallback",
         priority: 3,
-        label: account.name,
-        amount: account.amount,
-        testId: `stream-card-custom-${account.id}`,
+        label: customName,
+        amount: 0,
+        testId: "stream-card-custom",
         onClick: () => setStream("custom"),
       });
+    } else {
+      for (const account of customList) {
+        cards.push({
+          id: account.id,
+          priority: 3,
+          label: account.name,
+          amount: account.amount,
+          testId: `stream-card-custom-${account.id}`,
+          onClick: () => setStream("custom"),
+        });
+      }
     }
     return cards.sort((a, b) => a.priority - b.priority);
-  }, [driverTotal, shopeeTotal, state, t, setStream, setShopeeOpen]);
+  }, [driverTotal, shopeeTotal, state, customName, t, setStream, setShopeeOpen]);
   const unread = state.notifications.filter((n) => !n.read).length;
   const availableBills = state.accounts.find((a) => a.type === "Cash")?.amount ?? 0;
   // Priority order = the order set in Settings > Manage Bills & Installments.
