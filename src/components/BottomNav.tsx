@@ -40,8 +40,10 @@ function ItemContent({ labelKey, Icon, isActive }: NavItem & { isActive: boolean
 }
 
 function NavButton({ item, active }: { item: NavItem; active: string }) {
-  const isActive = active === item.label;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isActive = item.to ? pathname === item.to : active === item.label;
   if (item.to) {
+
     return (
       <Link
         to={item.to}
