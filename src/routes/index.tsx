@@ -15,7 +15,6 @@ import {
 
 import { useDragScroll } from "@/hooks/use-drag-scroll";
 
-
 import { WidgetErrorBoundary } from "@/components/WidgetErrorBoundary";
 import { BottomNav } from "@/components/BottomNav";
 import { SyncIndicator } from "@/components/SyncIndicator";
@@ -82,7 +81,6 @@ function Index() {
   const [stream, setStream] = useState<StreamKey | null>(null);
   const [shopeeOpen, setShopeeOpen] = useState(false);
   const strip = useDragScroll<HTMLDivElement>();
-
 
   const { balance } = useMemo(() => totals(state), [state]);
   // Home boxes show today's activity only, excluding the specialised streams.
@@ -284,9 +282,7 @@ function Index() {
                 </button>
               ))}
             </div>
-
           </section>
-
         </WidgetErrorBoundary>
 
         <WidgetErrorBoundary name="home-bills">
