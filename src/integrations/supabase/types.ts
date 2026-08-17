@@ -14,13 +14,263 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bills: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string | null
+          icon: string
+          id: string
+          is_recurring: boolean
+          name: string
+          paid: boolean
+          priority_order: number
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          icon?: string
+          id?: string
+          is_recurring?: boolean
+          name: string
+          paid?: boolean
+          priority_order?: number
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          icon?: string
+          id?: string
+          is_recurring?: boolean
+          name?: string
+          paid?: boolean
+          priority_order?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string
+          id?: string
+          name: string
+          type?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      category_audit_log: {
+        Row: {
+          action: string
+          category_id: string | null
+          category_name: string
+          category_type: string
+          created_at: string
+          details: Json
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          category_id?: string | null
+          category_name?: string
+          category_type?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          category_id?: string | null
+          category_name?: string
+          category_type?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar: string
+          biometric_lock: boolean
+          created_at: string
+          currency: string
+          id: string
+          language: string
+          last_sync: string | null
+          name: string
+          pin_set: boolean
+          push_notifications: boolean
+          reduce_motion: boolean
+          reserve: number
+          theme: string
+        }
+        Insert: {
+          avatar?: string
+          biometric_lock?: boolean
+          created_at?: string
+          currency?: string
+          id: string
+          language?: string
+          last_sync?: string | null
+          name?: string
+          pin_set?: boolean
+          push_notifications?: boolean
+          reduce_motion?: boolean
+          reserve?: number
+          theme?: string
+        }
+        Update: {
+          avatar?: string
+          biometric_lock?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          language?: string
+          last_sync?: string | null
+          name?: string
+          pin_set?: boolean
+          push_notifications?: boolean
+          reduce_motion?: boolean
+          reserve?: number
+          theme?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category_id: string | null
+          category_name: string
+          created_at: string
+          date: string
+          icon: string
+          id: string
+          note: string
+          type: string
+          user_id: string
+          wallet_id: string | null
+          wallet_name: string
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          category_name?: string
+          created_at?: string
+          date?: string
+          icon?: string
+          id?: string
+          note?: string
+          type?: string
+          user_id?: string
+          wallet_id?: string | null
+          wallet_name?: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          category_name?: string
+          created_at?: string
+          date?: string
+          icon?: string
+          id?: string
+          note?: string
+          type?: string
+          user_id?: string
+          wallet_id?: string | null
+          wallet_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance: number
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          sub: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name: string
+          sub?: string
+          type?: string
+          user_id?: string
+        }
+        Update: {
+          balance?: number
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          sub?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      app_stats: {
+        Args: never
+        Returns: {
+          total_bills: number
+          total_transactions: number
+          total_users: number
+          total_wallets: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
