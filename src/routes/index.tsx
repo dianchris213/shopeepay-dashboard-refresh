@@ -90,6 +90,47 @@ function Index() {
   const driverTotal = useMemo(() => driverBalance(state), [state]);
   const customName = useMemo(() => customLabel(state), [state]);
   const shopeeTotal = useMemo(() => shopeePayBalance(state), [state]);
+
+  // Derived, strictly-sorted wallet cards: Driver (1), ShopeePay (2), custom wallets (3+).
+  type WalletCard = {
+    id: string;
+    priority: number;
+    label: string;
+    amount: number;
+    testId: string;
+    onClick: () => void;
+  };
+  const walletCards = useMemo(() => {
+    const cards: WalletCard[] = [
+      {
+        id: "driver",
+        priority: 1,
+        label: `${t("home.driver")} · ${t("home.today")}`,
+        amount: driverTotal,
+        testId: "stream-card-driver",
+        onClick: () => setStream("driver"),
+      },
+      {
+        id: "shopee",
+        priority: 2,
+        label: t("home.shopee"),
+        amount: shopeeTotal,
+        testId: "stream-card-shopee",
+        onClick: () => setShopeeOpen(true),
+      },
+    ];
+    for (const account of customAccounts(state)) {
+      cards.push({
+        id: account.id,
+        priority: 3,
+        label: account.name,
+        amount: account.amount,
+        testId: `stream-card-custom-${account.id}`,
+        onClick: () => setStream("custom"),
+      });
+    }
+    return cards.sort((a, b) => a.priority - b.priority);
+  }, [driverTotal, shopeeTotal, state, t, setStream, setShopeeOpen]);
   const unread = state.notifications.filter((n) => !n.read).length;
   const availableBills = state.accounts.find((a) => a.type === "Cash")?.amount ?? 0;
   // Priority order = the order set in Settings > Manage Bills & Installments.
