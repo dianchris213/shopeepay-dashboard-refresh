@@ -88,7 +88,6 @@ function Index() {
   // Home boxes show today's activity only, excluding the specialised streams.
   const { income, expense } = useMemo(() => dailyTotals(state), [state]);
   const driverTotal = useMemo(() => driverBalance(state), [state]);
-  const customTotal = useMemo(() => customBalance(state), [state]);
   const customName = useMemo(() => customLabel(state), [state]);
   const shopeeTotal = useMemo(() => shopeePayBalance(state), [state]);
   const unread = state.notifications.filter((n) => !n.read).length;
