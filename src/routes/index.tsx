@@ -260,75 +260,29 @@ function Index() {
               data-testid="stream-strip"
               className="scroll-slim-x -mx-1 mt-2 flex w-full cursor-grab snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1.5 active:cursor-grabbing"
             >
-              <button
-                onClick={() => {
-                  if (strip.didDrag()) return;
-                  setStream("driver");
-                }}
-                data-testid="stream-card-driver"
-                aria-label={`${t("home.driver")}: ${money(driverTotal)}`}
-                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                  {t("home.driver")} · {t("home.today")}
-                </p>
-                <p
-                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
-                    driverTotal < 0 ? "text-expense" : "text-income"
-                  }`}
+              {walletCards.map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => {
+                    if (strip.didDrag()) return;
+                    card.onClick();
+                  }}
+                  data-testid={card.testId}
+                  aria-label={`${card.label}: ${money(card.amount)}`}
+                  className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
                 >
-                  {money(driverTotal)}
-                </p>
-              </button>
-              <button
-                onClick={() => {
-                  if (strip.didDrag()) return;
-                  setStream("custom");
-                }}
-                data-testid="stream-card-custom"
-                aria-label={`${customName}: ${money(customTotal)}`}
-                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                  {customName}
-                </p>
-                <p
-                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
-                    customTotal < 0 ? "text-expense" : "text-income"
-                  }`}
-                >
-                  {money(customTotal)}
-                </p>
-              </button>
-              {/* Persistent driver wallet — never resets at midnight. */}
-              <button
-                onClick={() => {
-                  if (strip.didDrag()) return;
-                  setShopeeOpen(true);
-                }}
-                data-testid="stream-card-shopee"
-                aria-label={`${t("home.shopee")}: ${money(shopeeTotal)}`}
-                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                  {t("home.shopee")}
-                </p>
-                <p
-                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
-                    shopeeTotal < 0 ? "text-expense" : "text-income"
-                  }`}
-                >
-                  {money(shopeeTotal)}
-                </p>
-              </button>
-              <Link
-                to="/wallets"
-                aria-label={t("nav.wallets")}
-                className="glass tap hover:bg-foreground/10 flex min-w-[112px] shrink-0 snap-start items-center justify-center gap-1.5 rounded-2xl px-3 py-2 text-[11px] font-medium transition-transform hover:scale-[1.03] active:scale-95"
-              >
-                <Wallet className="size-4" strokeWidth={1.8} />
-                {t("nav.wallets")}
-              </Link>
+                  <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
+                    {card.label}
+                  </p>
+                  <p
+                    className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
+                      card.amount < 0 ? "text-expense" : "text-income"
+                    }`}
+                  >
+                    {money(card.amount)}
+                  </p>
+                </button>
+              ))}
             </div>
 
           </section>
