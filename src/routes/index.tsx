@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -11,7 +11,6 @@ import {
   Repeat,
   Share2,
   Shield,
-  Wallet,
 } from "lucide-react";
 
 import { useDragScroll } from "@/hooks/use-drag-scroll";
@@ -38,7 +37,7 @@ import {
   useSafeToSpend,
 } from "@/lib/finance-store";
 import {
-  customBalance,
+  customAccounts,
   customLabel,
   dailyTotals,
   driverBalance,
