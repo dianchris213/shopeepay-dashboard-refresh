@@ -293,11 +293,13 @@
   --sidebar-ring: oklch(0.55 0.17 258);
   --gradient-app: radial-gradient(
       120% 80% at 10% 0%,
-      oklch(0.82 0.09 258 / 55%) 0%,
-      transparent 60%
+      oklch(0.86 0.08 258 / 60%) 0%,
+      transparent 62%
     ),
-    radial-gradient(100% 70% at 95% 10%, oklch(0.86 0.08 300 / 45%) 0%, transparent 65%),
-    linear-gradient(180deg, oklch(0.98 0.008 250) 0%, oklch(0.94 0.012 255) 100%);
+    radial-gradient(100% 70% at 95% 8%, oklch(0.89 0.07 300 / 50%) 0%, transparent 66%),
+    radial-gradient(90% 60% at 20% 100%, oklch(0.9 0.06 275 / 45%) 0%, transparent 70%),
+    linear-gradient(180deg, oklch(0.985 0.006 255) 0%, oklch(0.955 0.012 265) 100%);
+
   --gradient-hero: linear-gradient(
     135deg,
     oklch(0.88 0.07 258 / 85%) 0%,
