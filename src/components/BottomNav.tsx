@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { BarChart3, Home, Plus, Settings, Wallet } from "lucide-react";
 import { useState, type ComponentType } from "react";
 
