@@ -82,6 +82,8 @@ function Index() {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [stream, setStream] = useState<StreamKey | null>(null);
   const [shopeeOpen, setShopeeOpen] = useState(false);
+  const strip = useDragScroll<HTMLDivElement>();
+
 
   const { balance } = useMemo(() => totals(state), [state]);
   // Home boxes show today's activity only, excluding the specialised streams.
