@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { BarChart3, Home, Plus, Settings, Wallet } from "lucide-react";
 import { useState, type ComponentType } from "react";
 
@@ -20,10 +20,11 @@ const navItems: NavItem[] = [
 ];
 
 function itemClasses(isActive: boolean) {
-  return `tap flex flex-col items-center gap-0.5 rounded-2xl py-1.5 ${
-    isActive ? "text-foreground" : "text-muted-foreground"
+  return `tap flex flex-col items-center gap-0.5 rounded-2xl py-1.5 transition-colors hover:text-foreground ${
+    isActive ? "text-foreground bg-foreground/5" : "text-muted-foreground"
   }`;
 }
+
 
 function ItemContent({ labelKey, Icon, isActive }: NavItem & { isActive: boolean }) {
   const { t } = useT();
@@ -39,8 +40,10 @@ function ItemContent({ labelKey, Icon, isActive }: NavItem & { isActive: boolean
 }
 
 function NavButton({ item, active }: { item: NavItem; active: string }) {
-  const isActive = active === item.label;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isActive = item.to ? pathname === item.to : active === item.label;
   if (item.to) {
+
     return (
       <Link
         to={item.to}

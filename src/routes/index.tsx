@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -11,7 +11,11 @@ import {
   Repeat,
   Share2,
   Shield,
+  Wallet,
 } from "lucide-react";
+
+import { useDragScroll } from "@/hooks/use-drag-scroll";
+
 
 import { WidgetErrorBoundary } from "@/components/WidgetErrorBoundary";
 import { BottomNav } from "@/components/BottomNav";
@@ -78,6 +82,8 @@ function Index() {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [stream, setStream] = useState<StreamKey | null>(null);
   const [shopeeOpen, setShopeeOpen] = useState(false);
+  const strip = useDragScroll<HTMLDivElement>();
+
 
   const { balance } = useMemo(() => totals(state), [state]);
   // Home boxes show today's activity only, excluding the specialised streams.
@@ -208,16 +214,21 @@ function Index() {
               {t("home.net")} {income - expense < 0 ? "−" : "+"} {money(Math.abs(income - expense))}
             </p>
 
-            {/* Swipeable wallet strip — add more wallets without breaking layout. */}
+            {/* Swipeable wallet strip — drag with a mouse on desktop, swipe on touch. */}
             <div
+              ref={strip.ref}
+              {...strip.dragProps}
               data-testid="stream-strip"
-              className="no-scrollbar -mx-1 mt-2 flex w-full snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-0.5"
+              className="scroll-slim-x -mx-1 mt-2 flex w-full cursor-grab snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1.5 active:cursor-grabbing"
             >
               <button
-                onClick={() => setStream("driver")}
+                onClick={() => {
+                  if (strip.didDrag()) return;
+                  setStream("driver");
+                }}
                 data-testid="stream-card-driver"
                 aria-label={`${t("home.driver")}: ${money(driverTotal)}`}
-                className="glass tap min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left"
+                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
               >
                 <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
                   {t("home.driver")} · {t("home.today")}
@@ -231,10 +242,13 @@ function Index() {
                 </p>
               </button>
               <button
-                onClick={() => setStream("custom")}
+                onClick={() => {
+                  if (strip.didDrag()) return;
+                  setStream("custom");
+                }}
                 data-testid="stream-card-custom"
                 aria-label={`${customName}: ${money(customTotal)}`}
-                className="glass tap min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left"
+                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
               >
                 <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
                   {customName}
@@ -249,10 +263,13 @@ function Index() {
               </button>
               {/* Persistent driver wallet — never resets at midnight. */}
               <button
-                onClick={() => setShopeeOpen(true)}
+                onClick={() => {
+                  if (strip.didDrag()) return;
+                  setShopeeOpen(true);
+                }}
                 data-testid="stream-card-shopee"
                 aria-label={`${t("home.shopee")}: ${money(shopeeTotal)}`}
-                className="glass tap min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left"
+                className="glass tap hover:bg-foreground/10 min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left transition-transform hover:scale-[1.03] active:scale-95"
               >
                 <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
                   {t("home.shopee")}
@@ -265,7 +282,16 @@ function Index() {
                   {money(shopeeTotal)}
                 </p>
               </button>
+              <Link
+                to="/wallets"
+                aria-label={t("nav.wallets")}
+                className="glass tap hover:bg-foreground/10 flex min-w-[112px] shrink-0 snap-start items-center justify-center gap-1.5 rounded-2xl px-3 py-2 text-[11px] font-medium transition-transform hover:scale-[1.03] active:scale-95"
+              >
+                <Wallet className="size-4" strokeWidth={1.8} />
+                {t("nav.wallets")}
+              </Link>
             </div>
+
           </section>
 
         </WidgetErrorBoundary>
