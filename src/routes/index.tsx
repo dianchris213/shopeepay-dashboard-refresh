@@ -272,12 +272,12 @@ function Index() {
 
         <WidgetErrorBoundary name="home-bills">
           <section className="flex min-h-0 flex-1 flex-col">
-            <div className="glass-hero flex min-h-0 flex-1 flex-col rounded-2xl p-3">
-              <h2 className="shrink-0 text-xs font-semibold tracking-tight">
+            <div className="glass-hero flex min-h-0 flex-1 flex-col rounded-3xl p-4">
+              <h2 className="text-muted-foreground shrink-0 text-[10px] font-semibold tracking-widest uppercase">
                 {t("home.monthlyBills")}
               </h2>
               {/* Only this list scrolls when there are many bills. */}
-              <ul className="scroll-slim mt-1.5 min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
+              <ul className="scroll-slim mt-2 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
                 {bills.map((bill, index) => {
                   const Icon = iconFor(bill.icon);
                   const countdown = dueLabel(bill.dueDate);
@@ -365,7 +365,9 @@ function Index() {
         <WidgetErrorBoundary name="home-recent">
           <section className="flex min-h-0 flex-1 flex-col">
             <div className="flex shrink-0 items-center justify-between">
-              <h2 className="text-xs font-semibold tracking-tight">{t("home.recent")}</h2>
+              <h2 className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
+                {t("home.recent")}
+              </h2>
               <button
                 onClick={() => setAllOpen(true)}
                 className="tap glass text-muted-foreground rounded-full px-2.5 py-1 text-[10px] font-medium"
@@ -375,14 +377,14 @@ function Index() {
             </div>
 
             {/* Only this list scrolls when there are many transactions. */}
-            <ul className="scroll-slim mt-1.5 min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
+            <ul className="scroll-slim mt-2 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
               {recent.map((tx) => {
                 const Icon = iconFor(tx.icon);
                 const positive = tx.amount > 0;
                 return (
                   <li
                     key={tx.id}
-                    className="glass animate-fade-in flex items-center gap-2 rounded-xl px-2.5 py-1.5"
+                    className="glass animate-fade-in flex items-center gap-2.5 rounded-2xl px-3 py-2"
                   >
                     <span
                       className={`grid size-8 shrink-0 place-items-center rounded-full ${
