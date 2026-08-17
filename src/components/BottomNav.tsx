@@ -20,10 +20,11 @@ const navItems: NavItem[] = [
 ];
 
 function itemClasses(isActive: boolean) {
-  return `tap flex flex-col items-center gap-0.5 rounded-2xl py-1.5 ${
-    isActive ? "text-foreground" : "text-muted-foreground"
+  return `tap flex flex-col items-center gap-0.5 rounded-2xl py-1.5 transition-colors hover:text-foreground ${
+    isActive ? "text-foreground bg-foreground/5" : "text-muted-foreground"
   }`;
 }
+
 
 function ItemContent({ labelKey, Icon, isActive }: NavItem & { isActive: boolean }) {
   const { t } = useT();
