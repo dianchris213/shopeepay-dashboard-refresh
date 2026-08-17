@@ -138,11 +138,9 @@ function Index() {
       {/* Flexible content area: grows to fill, never scrolls itself. */}
       <div className="flex min-h-0 flex-1 flex-col gap-2 pt-2">
         <WidgetErrorBoundary name="home-dashboard">
-          {/* Unified dashboard: one hero card owns the total balance and three
-              switchable panes (today's flow, wallet breakdown, streams). This
-              replaces the previous stack of five separate cards so the screen
-              still fits without scrolling. */}
-          <section className="glass-hero animate-fade-in relative shrink-0 rounded-2xl p-3.5">
+          {/* Unified dashboard: one hero card owns the total balance, today's
+              flow summary and a swipeable wallet strip. */}
+          <section className="glass-hero animate-fade-in relative shrink-0 rounded-3xl p-4">
             <div className="flex items-start justify-between gap-2">
               <div className="flex min-w-0 flex-col items-start gap-1">
                 <p className="text-muted-foreground text-[10px] tracking-widest uppercase">
@@ -154,7 +152,7 @@ function Index() {
                 aria-label={t("home.safeToSpendHint")}
                 title={t("home.safeToSpendHint")}
                 onClick={() => setReserveOpen(true)}
-                className="tap border-foreground/10 bg-foreground/5 text-muted-foreground flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium backdrop-blur-md transition-colors duration-200"
+                className="tap border-foreground/10 bg-foreground/5 text-muted-foreground flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium backdrop-blur-md transition-colors duration-200"
               >
                 <Shield className="size-3" strokeWidth={1.8} />
                 <span className="tabular-nums">
@@ -169,182 +167,117 @@ function Index() {
               </button>
             </div>
 
-            <div className="mt-1 flex items-baseline justify-between gap-2">
+            <div className="mt-1.5">
               <button
                 onClick={() => setBreakdownOpen(true)}
                 aria-label="View balance breakdown"
                 className="tap flex min-w-0 items-baseline gap-2 text-left"
               >
-                <span className="truncate text-[1.9rem] leading-none font-semibold tracking-tight tabular-nums">
+                <span className="truncate text-[2.05rem] leading-none font-semibold tracking-tight tabular-nums">
                   {money(balance)}
                 </span>
                 <ChevronRight className="text-muted-foreground size-4 shrink-0" strokeWidth={2} />
               </button>
-              <span
-                className={`shrink-0 text-[11px] font-semibold tabular-nums ${
-                  income - expense < 0 ? "text-expense" : "text-income"
-                }`}
-              >
-                {t("home.net")} {income - expense < 0 ? "−" : "+"} {money(Math.abs(income - expense))}
-              </span>
             </div>
 
-            {/* Segmented control keeps three dense panes in one card footprint. */}
-            <div
-              role="tablist"
-              aria-label={t("home.totalBalance")}
-              className="bg-foreground/5 mt-2.5 grid grid-cols-3 gap-1 rounded-full p-1"
+            {/* Today's flow: income and expense side by side, net inline. */}
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="glass rounded-2xl px-3 py-2.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="bg-income/15 text-income grid size-6 place-items-center rounded-full">
+                    <ArrowDownLeft className="size-3.5" strokeWidth={2} />
+                  </span>
+                  <span className="text-muted-foreground truncate text-[10px] tracking-wide">
+                    {t("home.income")} · {t("home.today")}
+                  </span>
+                </div>
+                <p className="text-income mt-1.5 text-sm font-semibold tabular-nums">
+                  + {money(income)}
+                </p>
+              </div>
+              <div className="glass rounded-2xl px-3 py-2.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="bg-expense/15 text-expense grid size-6 place-items-center rounded-full">
+                    <ArrowUpRight className="size-3.5" strokeWidth={2} />
+                  </span>
+                  <span className="text-muted-foreground truncate text-[10px] tracking-wide">
+                    {t("home.expense")} · {t("home.today")}
+                  </span>
+                </div>
+                <p className="text-expense mt-1.5 text-sm font-semibold tabular-nums">
+                  − {money(expense)}
+                </p>
+              </div>
+            </div>
+
+            <p
+              className={`mt-2 text-right text-[11px] font-medium tabular-nums ${
+                income - expense < 0 ? "text-expense" : "text-income"
+              }`}
             >
-              {(
-                [
-                  ["overview", "home.overview"],
-                  ["wallets", "home.breakdown"],
-                  ["streams", "home.streams"],
-                ] as const
-              ).map(([key, labelKey]) => (
-                <button
-                  key={key}
-                  role="tab"
-                  aria-selected={pane === key}
-                  onClick={() => setPane(key)}
-                  className={`tap rounded-full px-2 py-1 text-[10px] font-medium tracking-wide transition-colors duration-200 ${
-                    pane === key
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground"
+              {t("home.net")} {income - expense < 0 ? "−" : "+"} {money(Math.abs(income - expense))}
+            </p>
+
+            {/* Swipeable wallet strip — add more wallets without breaking layout. */}
+            <div
+              data-testid="stream-strip"
+              className="no-scrollbar -mx-1 mt-2 flex w-full snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-0.5"
+            >
+              <button
+                onClick={() => setStream("driver")}
+                data-testid="stream-card-driver"
+                aria-label={`${t("home.driver")}: ${money(driverTotal)}`}
+                className="glass tap min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left"
+              >
+                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
+                  {t("home.driver")} · {t("home.today")}
+                </p>
+                <p
+                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
+                    driverTotal < 0 ? "text-expense" : "text-income"
                   }`}
                 >
-                  {t(labelKey)}
-                </button>
-              ))}
-            </div>
-
-            {pane === "overview" && (
-              <div className="mt-2.5 grid grid-cols-2 gap-2">
-                <div className="glass rounded-xl px-2.5 py-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="glow-income bg-income/15 text-income grid size-6 place-items-center rounded-full">
-                      <ArrowDownLeft className="size-3.5" strokeWidth={2} />
-                    </span>
-                    <span className="text-muted-foreground truncate text-[10px] tracking-wide">
-                      {t("home.income")} · {t("home.today")}
-                    </span>
-                  </div>
-                  <p className="text-income mt-1 text-sm font-semibold tabular-nums">
-                    + {money(income)}
-                  </p>
-                </div>
-                <div className="glass rounded-xl px-2.5 py-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="glow-expense bg-expense/15 text-expense grid size-6 place-items-center rounded-full">
-                      <ArrowUpRight className="size-3.5" strokeWidth={2} />
-                    </span>
-                    <span className="text-muted-foreground truncate text-[10px] tracking-wide">
-                      {t("home.expense")} · {t("home.today")}
-                    </span>
-                  </div>
-                  <p className="text-expense mt-1 text-sm font-semibold tabular-nums">
-                    − {money(expense)}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {pane === "wallets" && (
-              <ul className="scroll-slim mt-2.5 max-h-[104px] space-y-1.5 overflow-y-auto pr-1">
-                {groupMeta.map(({ labelKey, type, Icon }) => {
-                  const group = state.accounts.filter((a) => a.type === type);
-                  const amount = group.reduce((sum, a) => sum + a.amount, 0);
-                  const names = group.filter((a) => a.amount > 0).map((a) => a.name);
-                  return (
-                    <li
-                      key={labelKey}
-                      className="glass flex items-center gap-2 rounded-xl px-2.5 py-1.5"
-                    >
-                      <span className="glow-income bg-income/15 text-income grid size-7 shrink-0 place-items-center rounded-full">
-                        <Icon className="size-3.5" strokeWidth={1.9} />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[11px] font-medium">{t(labelKey)}</p>
-                        {names.length > 0 && (
-                          <p className="text-muted-foreground truncate text-[9px]">
-                            {names.join(" · ")}
-                          </p>
-                        )}
-                      </div>
-                      <p className="text-income shrink-0 text-xs font-semibold tabular-nums">
-                        {money(amount)}
-                      </p>
-                    </li>
-                  );
-                })}
-                {state.accounts.length === 0 && (
-                  <li className="text-muted-foreground py-2 text-center text-[11px]">
-                    {t("home.noWallets")}
-                  </li>
-                )}
-              </ul>
-            )}
-
-            {pane === "streams" && (
-              <div
-                data-testid="stream-strip"
-                className="no-scrollbar -mx-1 mt-2.5 flex w-full gap-1.5 overflow-x-auto px-1"
+                  {money(driverTotal)}
+                </p>
+              </button>
+              <button
+                onClick={() => setStream("custom")}
+                data-testid="stream-card-custom"
+                aria-label={`${customName}: ${money(customTotal)}`}
+                className="glass tap min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left"
               >
-                <button
-                  onClick={() => setStream("driver")}
-                  data-testid="stream-card-driver"
-                  aria-label={`${t("home.driver")}: ${money(driverTotal)}`}
-                  className="glass tap min-w-[110px] flex-1 basis-0 rounded-xl px-2.5 py-1.5 text-left"
+                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
+                  {customName}
+                </p>
+                <p
+                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
+                    customTotal < 0 ? "text-expense" : "text-income"
+                  }`}
                 >
-                  <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                    {t("home.driver")} · {t("home.today")}
-                  </p>
-                  <p
-                    className={`truncate text-xs font-semibold tabular-nums ${
-                      driverTotal < 0 ? "text-expense" : "text-income"
-                    }`}
-                  >
-                    {money(driverTotal)}
-                  </p>
-                </button>
-                <button
-                  onClick={() => setStream("custom")}
-                  data-testid="stream-card-custom"
-                  aria-label={`${customName}: ${money(customTotal)}`}
-                  className="glass tap min-w-[110px] flex-1 basis-0 rounded-xl px-2.5 py-1.5 text-left"
+                  {money(customTotal)}
+                </p>
+              </button>
+              {/* Persistent driver wallet — never resets at midnight. */}
+              <button
+                onClick={() => setShopeeOpen(true)}
+                data-testid="stream-card-shopee"
+                aria-label={`${t("home.shopee")}: ${money(shopeeTotal)}`}
+                className="glass tap min-w-[132px] shrink-0 snap-start rounded-2xl px-3 py-2 text-left"
+              >
+                <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
+                  {t("home.shopee")}
+                </p>
+                <p
+                  className={`mt-0.5 truncate text-sm font-semibold tabular-nums ${
+                    shopeeTotal < 0 ? "text-expense" : "text-income"
+                  }`}
                 >
-                  <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                    {customName}
-                  </p>
-                  <p
-                    className={`truncate text-xs font-semibold tabular-nums ${
-                      customTotal < 0 ? "text-expense" : "text-income"
-                    }`}
-                  >
-                    {money(customTotal)}
-                  </p>
-                </button>
-                {/* Persistent driver wallet — never resets at midnight. */}
-                <button
-                  onClick={() => setShopeeOpen(true)}
-                  data-testid="stream-card-shopee"
-                  aria-label={`${t("home.shopee")}: ${money(shopeeTotal)}`}
-                  className="glass tap min-w-[110px] flex-1 basis-0 rounded-xl px-2.5 py-1.5 text-left"
-                >
-                  <p className="text-muted-foreground truncate text-[9px] tracking-wide uppercase">
-                    {t("home.shopee")}
-                  </p>
-                  <p
-                    className={`truncate text-xs font-semibold tabular-nums ${
-                      shopeeTotal < 0 ? "text-expense" : "text-income"
-                    }`}
-                  >
-                    {money(shopeeTotal)}
-                  </p>
-                </button>
-              </div>
-            )}
+                  {money(shopeeTotal)}
+                </p>
+              </button>
+            </div>
           </section>
+
         </WidgetErrorBoundary>
 
         <WidgetErrorBoundary name="home-bills">
